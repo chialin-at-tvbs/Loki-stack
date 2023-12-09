@@ -1,3 +1,14 @@
+image:
+  tag: 2.2.0-debug
+
+logLevel: debug
+
+serviceAccount:
+  create: true
+  name: fluent-bit-sa
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::295387529413:role/production-eks-fluent-bit-irsa"
+
 config:
   inputs: |
     [INPUT]
@@ -12,7 +23,7 @@ config:
   filters: |
     [FILTER]
         Name kubernetes
-        Match kube.*
+        Match kube.trendee.*
         Kube_Tag_Prefix kube.
         Regex_Parser    k8s-custom-tag
         Merge_Log On
@@ -22,7 +33,7 @@ config:
 
     [FILTER]
         Name                grep
-        Match               kube.*
+        Match               kube.trendee.*
         Exclude             log /.*index.php HTTP.*/
         Exclude             log /\/ HTTP.*/
         Exclude             log /.*ELB-HealthChecker.*/
@@ -30,10 +41,19 @@ config:
   outputs: |
     [OUTPUT]
         Name loki
-        Match kube.*
+        Match kube.trendee.*
         Host loki-gateway.loki.svc.cluster.local
         Port 80
         auto_kubernetes_labels on
+
+    [OUTPUT]
+        Name                         s3
+        Match                        kube.trendee.*
+        region                       ap-northeast-1
+        use_put_object               On
+        bucket                       trendee-production-logging
+        s3_key_format                /$TAG[1]/%Y-%m-%d/$TAG[2]-%H-%M-%S
+        s3_key_format_tag_delimiters .
 
   customParsers: |
     [PARSER]
@@ -41,3 +61,8 @@ config:
         Format   regex
         Regex    (?<namespace_name>[^.]+)\.(?<pod_name>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)\.(?<container_name>[^.]+)$
 
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "magento"
+    effect: "NoSchedule"
