@@ -5,7 +5,7 @@ install: ## Intall helm charts
 		--create-namespace \
 		--namespace grafana \
 		--values grafana/values.yaml \
-		grafana grafana/grafana \
+		grafana grafana/grafana
 	
 	helm upgrade \
 		--install \
