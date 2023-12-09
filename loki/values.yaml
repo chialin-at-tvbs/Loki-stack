@@ -1,8 +1,58 @@
 loki:
   auth_enabled: false
   commonConfig:
+    path_prefix: /var/loki
     replication_factor: 1
-  storage:
-    type: 'filesystem'
+  compactor:
+    apply_retention_interval: 1h
+    compaction_interval: 5m
+    retention_delete_worker_count: 500
+    retention_enabled: true
+    shared_store: s3
+    working_directory: /data/compactor
+  schemaConfig:
+    configs:
+    - from: 2020-05-15
+      store: boltdb-shipper
+      object_store: s3
+      schema: v11
+      index:
+        period: 24h
+        prefix: loki_index_
+  storage_config:
+    aws:
+      region: ap-northeast-1
+      bucketnames: trendee-production-logging
+      s3forcepathstyle: false
+      # s3forcepathstyle: true  <-- This is the main culprit; comment it out ? -? https://github.com/grafana/loki/issues/7024
+    boltdb_shipper:
+      shared_store: s3
+      cache_ttl: 24h
+
+serviceAccount:
+  create: true
+  name: loki-sa
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::295387529413:role/production-eks-loki-irsa"
+
 singleBinary:
   replicas: 1
+  extraVolumes:
+    - name: compactor-data
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: compactor-data
+      mountPath: /data/compactor
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "magento"
+      effect: "NoSchedule"
+
+gateway:
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "magento"
+      effect: "NoSchedule"
+
