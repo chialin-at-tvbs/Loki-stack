@@ -2,6 +2,9 @@ datasources:
   datasources.yaml:
     apiVersion: 1
     datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://grafana-prometheus-server.grafana.svc.cluster.local
     - name: Loki
       type: loki
       url: http://loki-gateway.loki.svc.cluster.local:80
