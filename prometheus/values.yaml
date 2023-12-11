@@ -1,0 +1,27 @@
+alertmanager:
+  enabled: false
+rbac:
+  create: true
+server:
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "trendee"
+      effect: "NoSchedule"
+kube-state-metrics:
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "trendee"
+      effect: "NoSchedule"
+prometheus-pushgateway:
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "trendee"
+      effect: "NoSchedule"
+serviceAccounts:
+  server:
+    create: true
+    name: prometheus-sa
+
