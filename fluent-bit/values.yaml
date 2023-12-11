@@ -64,5 +64,5 @@ config:
 tolerations:
   - key: "dedicated"
     operator: "Equal"
-    value: "magento"
+    value: "trendee"
     effect: "NoSchedule"
