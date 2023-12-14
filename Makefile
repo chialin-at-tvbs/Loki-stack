@@ -31,4 +31,5 @@ uninstall: ## Uninstall helm charts
 add-deps-repos: ## Add dependencies repositories
 	helm repo add grafana https://grafana.github.io/helm-charts
 	helm repo add fluent https://fluent.github.io/helm-charts
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
